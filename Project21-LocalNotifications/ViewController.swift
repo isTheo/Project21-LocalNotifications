@@ -13,8 +13,14 @@ class ViewController: UIViewController, UNUserNotificationCenterDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Register", style: .plain, target: self, action: #selector(registerLocal))
-        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Schedule", style: .plain, target: self, action: #selector(scheduleLocal))
+        let registerButton = UIBarButtonItem(title: "Register", style: .plain, target: self, action: #selector(registerLocal))
+        let scheduleButton = UIBarButtonItem(title: "Schedule", style: .plain, target: self, action: #selector(scheduleLocal))
+        
+        navigationItem.leftBarButtonItem = registerButton
+        navigationItem.rightBarButtonItem = scheduleButton
+        
+        
+        registerCategories()
     }
     
     
@@ -37,8 +43,10 @@ class ViewController: UIViewController, UNUserNotificationCenterDelegate {
         center.delegate = self
 
         let show = UNNotificationAction(identifier: "show", title: "Tell me more…", options: .foreground)
+        let remindLater = UNNotificationAction(identifier: "remindLater", title: "Remind me later", options: .foreground)
         let category = UNNotificationCategory(identifier: "alarm", actions: [show], intentIdentifiers: [])
-
+        
+        
         center.setNotificationCategories([category])
     }
     
@@ -52,41 +60,47 @@ class ViewController: UIViewController, UNUserNotificationCenterDelegate {
 
             switch response.actionIdentifier {
             case UNNotificationDefaultActionIdentifier:
-                //the user swiped to unlock
-                print("Default identifier")
+                showAlert(title: "Default Action", message: "The user swiped to unlock.")
 
             case "show":
-                //the user tapped our "show more info…" button
-                print("Show more information…")
+                showAlert(title: "Show more info", message: "The user tapped the 'Tell me more...' button")
+            case "remindLater":
+                scheduleLocal(inSeconds: 86400)
 
             default:
                 break
             }
         }
 
-        // you must call the completion handler when you're done
+        //calling the completion handler once we're done
         completionHandler()
     }
     
     
-    @objc func scheduleLocal() {
+    func showAlert(title: String, message: String) {
+        let alertController = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        let okAction = UIAlertAction(title: "OK", style: .default, handler: nil)
+        alertController.addAction(okAction)
+        present(alertController, animated: true, completion: nil)
+    }
+    
+    
+    @objc func scheduleLocal(inSeconds: TimeInterval) {
         let center = UNUserNotificationCenter.current()
         center.removeAllPendingNotificationRequests()
-
+        
         let content = UNMutableNotificationContent()
         content.title = "Late wake up call"
         content.body = "The early bird catches the worm, but the second mouse gets the cheese."
         content.categoryIdentifier = "alarm"
         content.userInfo = ["customData": "fizzbuzz"]
         content.sound = UNNotificationSound.default
-
-        var dateComponents = DateComponents()
-        dateComponents.hour = 10
-        dateComponents.minute = 30
-        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 5, repeats: false)
         
-
+        
+        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 5, repeats: false)
         let request = UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: trigger)
+        
+        
         center.add(request)
     }
     
