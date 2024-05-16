@@ -44,7 +44,7 @@ class ViewController: UIViewController, UNUserNotificationCenterDelegate {
 
         let show = UNNotificationAction(identifier: "show", title: "Tell me more…", options: .foreground)
         let remindLater = UNNotificationAction(identifier: "remindLater", title: "Remind me later", options: .foreground)
-        let category = UNNotificationCategory(identifier: "alarm", actions: [show], intentIdentifiers: [])
+        let category = UNNotificationCategory(identifier: "alarm", actions: [show, remindLater], intentIdentifiers: [])
         
         
         center.setNotificationCategories([category])
@@ -63,7 +63,7 @@ class ViewController: UIViewController, UNUserNotificationCenterDelegate {
                 showAlert(title: "Default Action", message: "The user swiped to unlock.")
 
             case "show":
-                showAlert(title: "Show more info", message: "The user tapped the 'Tell me more...' button")
+                showAlert(title: "Show more info", message: "The user tapped the ''Tell me more...'' button")
             case "remindLater":
                 scheduleLocal(inSeconds: 86400)
 
